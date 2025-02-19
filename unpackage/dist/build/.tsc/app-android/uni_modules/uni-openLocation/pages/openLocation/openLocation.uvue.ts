@@ -1,0 +1,377 @@
+
+  import { openSchema } from '@/uni_modules/uts-openSchema'
+
+  import { canOpenURL } from '@/uni_modules/uts-openSchema'
+
+  
+  import targetPath from '@/uni_modules/uni-openLocation/pages/openLocation/target.png'
+ 
+  //const targetPath = '/uni_modules/uni-openLocation/static/target.png'
+
+  type AafeArea = {
+    top : number,
+    bottom : number,
+    left : number,
+    right : number
+  }
+
+  type IconPath = {
+    target : string,
+    position : string,
+    navigation : string,
+    back : string,
+  }
+
+  const languageData = {
+    "en": {
+      "navigation": "navigation"
+    },
+    "zh-Hans": {
+      "navigation": "导航"
+    },
+    "zh-Hant": {
+      "navigation": "導航"
+    }
+  };
+
+  const __sfc__ = defineComponent({
+    data() {
+      const id1 = `UniMap1_${(Math.random() * 10e5).toString(36)}` as string;
+      return {
+        readyEventName: '',
+        optionsEventName: '',
+        successEventName: '',
+        failEventName: '',
+        openLocationOptions: {
+          latitude: 0,
+          longitude: 0,
+          scale: 18,
+          name: '',
+          address: ''
+        } as OpenLocationOptions,
+        safeArea: {
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0
+        } as AafeArea,
+        icon: {
+          target: '\ue683',
+          position: '\ue653',
+          navigation: '\ue640',
+          back: '\ue651',
+        } as IconPath,
+        language: "zh-Hans",
+        isLandscape: false,
+        theme: "light",
+        mapId: id1,
+        latitude: 0,
+        longitude: 0,
+        markers: [] as Marker[]
+      }
+    },
+    onLoad(options : UTSJSONObject) {
+      this.initPageOptions(options);
+      this.getSystemInfo();
+    },
+    onReady() {
+
+    },
+    onUnload() {
+      uni.$off(this.optionsEventName, null);
+      uni.$off(this.readyEventName, null);
+      uni.$off(this.successEventName, null);
+      uni.$off(this.failEventName, null);
+
+
+
+
+
+
+    },
+    onResize() {
+      const systemInfo = uni.getSystemInfoSync();
+      this.isLandscape = systemInfo.deviceOrientation == 'landscape';
+    },
+    methods: {
+      initPageOptions(options : UTSJSONObject) {
+        this.readyEventName = options['readyEventName']! as string;
+        this.optionsEventName = options['optionsEventName']! as string;
+        this.successEventName = options['successEventName']! as string;
+        this.failEventName = options['failEventName']! as string;
+        uni.$on(this.optionsEventName, (data : UTSJSONObject) => {
+          console.log('data: ', JSON.stringify(data))
+          if (data['latitude'] != null) {
+            this.openLocationOptions.latitude = data['latitude'] as number;
+            this.latitude = this.openLocationOptions.latitude;
+          }
+          if (data['longitude'] != null) {
+            this.openLocationOptions.longitude = data['longitude'] as number;
+            this.longitude = this.openLocationOptions.longitude;
+          }
+          if (data['scale'] != null) {
+            this.openLocationOptions.scale = data['scale'] as number;
+          }
+          if (data['name'] != null) {
+            this.openLocationOptions.name = data['name'] as string;
+          }
+          if (data['address'] != null) {
+            this.openLocationOptions.address = data['address'] as string;
+          }
+          setTimeout(() => {
+            this.markers = [
+              {
+                id: 1,
+                latitude: this.openLocationOptions.latitude,
+                longitude: this.openLocationOptions.longitude,
+                iconPath: targetPath,
+                width: 50,
+                height: 50
+              } as Marker
+            ] as Marker[];
+          }, 300);
+          uni.$emit(this.successEventName, {});
+        });
+        uni.$emit(this.readyEventName, {});
+      },
+      getSystemInfo() {
+        const info = uni.getWindowInfo();
+        this.safeArea.top = info.safeAreaInsets.top;
+        this.safeArea.bottom = info.safeAreaInsets.bottom;
+        this.safeArea.left = info.safeAreaInsets.left;
+        this.safeArea.right = info.safeAreaInsets.right;
+        const systemInfo = uni.getSystemInfoSync()
+        // const osLanguage = systemInfo.osLanguage
+        const appLanguage = systemInfo.appLanguage
+        this.language = appLanguage
+        const osTheme = systemInfo.osTheme
+        const appTheme = systemInfo.appTheme
+        if (appTheme != null && appTheme != "auto") {
+          this.theme = appTheme
+        } else if (osTheme != null) {
+          this.theme = osTheme
+        }
+        this.isLandscape = systemInfo.deviceOrientation == 'landscape'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        uni.onAppThemeChange((res : AppThemeChangeResult) => {
+          this.theme = res.appTheme
+        })
+        uni.onOsThemeChange((res : OsThemeChangeResult) => {
+          this.theme = res.osTheme
+        })
+
+      },
+      closeDialogPage() {
+
+        uni.closeDialogPage({
+          dialogPage: this.$page
+        } as io.dcloud.uniapp.framework.extapi.CloseDialogPageOptions)
+
+
+
+
+
+
+      },
+      back() {
+        this.closeDialogPage();
+      },
+      getMapContext() : MapContext | null {
+        return uni.createMapContext(this.mapId, this);
+      },
+      moveToLocation() {
+        const mapContext = this.getMapContext();
+        if (mapContext != null) {
+          mapContext.moveToLocation({});
+        }
+      },
+      mapReset() {
+        this.moveToLocation();
+      },
+      navigation() {
+        const appBaseInfo = uni.getAppBaseInfo();
+
+        const src = appBaseInfo.packageName;
+
+
+
+
+
+
+
+
+        const list = ["腾讯地图", "高德地图", "百度地图"] as Array<string>;
+
+
+
+        uni.showActionSheet({
+          itemList: list,
+          success: (res) => {
+            let index = res.tapIndex;
+            if (index != null) {
+              let item = list[index] as string;
+              try {
+                let url = "";
+                if (item == "腾讯地图") {
+
+                  url = `qqmap://map/routeplan?type=drive&from=我的位置&fromcoord=CurrentLocation&to=${this.openLocationOptions.name}&tocoord=${this.openLocationOptions.latitude},${this.openLocationOptions.longitude}&referer=1`;
+
+
+
+
+                } else if (item == "高德地图") {
+
+                  url = `androidamap://route/plan/?sourceApplication=${src}&slat=&slon=&sname=我的位置&dlat=${this.openLocationOptions.latitude}&dlon=${this.openLocationOptions.longitude}&dname=${this.openLocationOptions.name}&dev=0&t=0`;
+
+
+
+
+
+
+
+                } else if (item == "百度地图") {
+
+                  url = `baidumap://map/direction?origin=我的位置&destination=latlng:${this.openLocationOptions.latitude},${this.openLocationOptions.longitude}|name:${this.openLocationOptions.name}&coord_type=gcj02&mode=driving&src=${src}`;
+
+
+
+
+
+
+
+                } else if (item == "苹果地图") {
+
+
+
+                }
+                if (url != "") {
+
+                  let schemaPrefix = "";
+                  const schemaIndex = url.indexOf('?');
+                  if (schemaIndex != -1) {
+                    schemaPrefix = url.substring(0, schemaIndex);
+                  }
+                  if (canOpenURL(schemaPrefix)) {
+                    openSchema(url);
+                  } else {
+                    uni.showToast({
+                      title: `请先安装${item}`,
+                      icon: "none"
+                    });
+                  }
+
+
+
+
+                }
+              } catch (err) {
+                console.error(err);
+              }
+            }
+          }
+        });
+      }
+    },
+    computed: {
+      languageCom() : UTSJSONObject {
+        const textInfo = languageData[this.language] != null ? languageData[this.language] as UTSJSONObject : languageData['zh-Hans'] as UTSJSONObject;
+        return textInfo;
+      },
+      classCom() : string {
+        let list = [] as Array<string>;
+        if (this.theme == 'dark') {
+          list.push('uni-open-location-dark');
+        } else {
+          list.push('uni-open-location-light');
+        }
+        return list.join(' ');
+      },
+      landscapeClassCom() : string {
+        return this.isLandscape ? 'uni-open-location-landscape' : '';
+      }
+    }
+  })
+
+export default __sfc__
+function GenUniModulesUniOpenLocationPagesOpenLocationOpenLocationRender(this: InstanceType<typeof __sfc__>): any | null {
+const _ctx = this
+const _cache = this.$.renderCache
+const _component_map = resolveComponent("map")
+
+  return createElementVNode("view", utsMapOf({
+    class: normalizeClass(["uni-open-location", _ctx.classCom])
+  }), [
+    createElementVNode("view", utsMapOf({ class: "uni-open-location-map-box" }), [
+      createVNode(_component_map, utsMapOf({
+        class: "uni-open-location-map",
+        id: _ctx.mapId,
+        ref: _ctx.mapId,
+        latitude: _ctx.latitude,
+        longitude: _ctx.longitude,
+        scale: _ctx.openLocationOptions.scale,
+        markers: _ctx.markers,
+        "layer-style": _ctx.theme == 'dark' ? '2' : '1',
+        "show-compass": false,
+        "enable-zoom": true,
+        "enable-scroll": true,
+        "enable-rotate": false,
+        "enable-poi": true,
+        "show-location": true
+      }), null, 8 /* PROPS */, ["id", "latitude", "longitude", "scale", "markers", "layer-style"]),
+      createElementVNode("view", utsMapOf({
+        class: "uni-open-location-map-reset",
+        onClick: _ctx.mapReset
+      }), [
+        createElementVNode("text", utsMapOf({ class: "uni-open-location-icons uni-open-location-map-reset-icon" }), toDisplayString(_ctx.icon.position), 1 /* TEXT */)
+      ], 8 /* PROPS */, ["onClick"])
+    ]),
+    createElementVNode("view", utsMapOf({
+      class: "uni-open-location-nav",
+      style: normalizeStyle('height:' + (60 + _ctx.safeArea.top) + 'px;')
+    }), [
+      createElementVNode("view", utsMapOf({
+        class: normalizeClass(["uni-open-location-nav-btn uni-open-location-nav-back-btn", [_ctx.landscapeClassCom]]),
+        style: normalizeStyle(_ctx.safeArea.top > 0 ? 'top: ' + _ctx.safeArea.top + 'px;' : '')
+      }), [
+        createElementVNode("text", utsMapOf({
+          class: "uni-open-location-nav-text uni-open-location-nav-back-text uni-open-location-icons",
+          onClick: _ctx.back
+        }), toDisplayString(_ctx.icon.back), 9 /* TEXT, PROPS */, ["onClick"])
+      ], 6 /* CLASS, STYLE */)
+    ], 4 /* STYLE */),
+    createElementVNode("view", utsMapOf({ class: "uni-open-location-footer" }), [
+      createElementVNode("view", utsMapOf({ class: "uni-open-location-address" }), [
+        createElementVNode("text", utsMapOf({ class: "uni-open-location-name-text" }), toDisplayString(_ctx.openLocationOptions.name), 1 /* TEXT */),
+        createElementVNode("text", utsMapOf({ class: "uni-open-location-address-text" }), toDisplayString(_ctx.openLocationOptions.address), 1 /* TEXT */)
+      ]),
+      createElementVNode("view", utsMapOf({ class: "uni-open-location-footer-icon-btns" }), [
+        createElementVNode("view", utsMapOf({
+          class: "uni-open-location-footer-icon-btns-item",
+          onClick: _ctx.navigation
+        }), [
+          createElementVNode("view", utsMapOf({ class: "uni-open-location-footer-icon-box" }), [
+            createElementVNode("text", utsMapOf({ class: "uni-open-location-icons" }), toDisplayString(_ctx.icon.navigation), 1 /* TEXT */)
+          ]),
+          createElementVNode("text", utsMapOf({ class: "uni-open-location-footer-btn-text" }), toDisplayString(_ctx.languageCom['navigation']), 1 /* TEXT */)
+        ], 8 /* PROPS */, ["onClick"])
+      ])
+    ])
+  ], 2 /* CLASS */)
+}
+const GenUniModulesUniOpenLocationPagesOpenLocationOpenLocationStyles = [utsMapOf([["uni-open-location-icons", utsMapOf([["", utsMapOf([["fontFamily", "UniOpenLocationFontFamily"], ["fontSize", 16], ["fontStyle", "normal"]])], [".uni-open-location .uni-open-location-footer-icon-btns .uni-open-location-footer-icon-btns-item .uni-open-location-footer-icon-box ", utsMapOf([["color", "#007aff"], ["fontSize", 24]])]])], ["uni-open-location", padStyleMapOf(utsMapOf([["position", "relative"], ["left", 0], ["top", 0], ["width", "100%"], ["height", "100%"], ["backgroundImage", "none"], ["backgroundColor", "#f8f8f8"], ["zIndex", 999], ["display", "flex"], ["flexDirection", "column"]]))], ["uni-open-location-map-box", utsMapOf([[".uni-open-location ", utsMapOf([["width", "100%"], ["flex", 1]])]])], ["uni-open-location-map", utsMapOf([[".uni-open-location ", utsMapOf([["width", "100%"], ["height", "100%"]])]])], ["uni-open-location-map-reset", utsMapOf([[".uni-open-location ", utsMapOf([["position", "absolute"], ["left", 20], ["bottom", 40], ["width", 40], ["height", 40], ["boxSizing", "border-box"], ["backgroundColor", "#ffffff"], ["borderRadius", 20], ["pointerEvents", "auto"], ["boxShadow", "0px 0px 20px 2px rgba(0, 0, 0, .3)"], ["zIndex", 9], ["display", "flex"], ["justifyContent", "center"], ["alignItems", "center"]])], [".uni-open-location.uni-open-location-dark ", utsMapOf([["backgroundColor", "#111111"]])]])], ["uni-open-location-map-reset-icon", utsMapOf([[".uni-open-location .uni-open-location-map-reset ", utsMapOf([["fontSize", 26], ["textAlign", "center"], ["lineHeight", "40px"]])], [".uni-open-location.uni-open-location-dark .uni-open-location-map-reset ", utsMapOf([["color", "#d1d1d1"]])]])], ["uni-open-location-nav", utsMapOf([[".uni-open-location ", utsMapOf([["position", "absolute"], ["top", 0], ["left", 0], ["width", "100%"], ["height", 60], ["backgroundColor", "rgba(0,0,0,0)"], ["backgroundImage", "linear-gradient(to bottom, rgba(0, 0, 0, .3), rgba(0, 0, 0, 0))"]])]])], ["uni-open-location-nav-btn", utsMapOf([[".uni-open-location .uni-open-location-nav ", utsMapOf([["position", "absolute"], ["top", 5], ["left", 5], ["width", 44], ["height", 44], ["display", "flex"], ["justifyContent", "center"], ["alignItems", "center"]])]])], ["uni-open-location-nav-back-text", utsMapOf([[".uni-open-location .uni-open-location-nav .uni-open-location-nav-btn.uni-open-location-nav-back-btn ", utsMapOf([["color", "#ffffff"], ["fontSize", 26]])]])], ["uni-open-location-footer", utsMapOf([[".uni-open-location ", utsMapOf([["height", 150], ["borderTopLeftRadius", 10], ["borderTopRightRadius", 10], ["borderBottomRightRadius", 0], ["borderBottomLeftRadius", 0], ["overflow", "hidden"], ["backgroundColor", "#ffffff"], ["display", "flex"], ["flexDirection", "row"], ["alignItems", "center"], ["justifyContent", "space-between"], ["paddingTop", 0], ["paddingRight", 20], ["paddingBottom", 0], ["paddingLeft", 20]])], [".uni-open-location.uni-open-location-dark ", utsMapOf([["backgroundColor", "#181818"]])]])], ["uni-open-location-address", utsMapOf([[".uni-open-location .uni-open-location-footer ", utsMapOf([["display", "flex"], ["flexDirection", "column"], ["flex", 1]])]])], ["uni-open-location-name-text", utsMapOf([[".uni-open-location .uni-open-location-footer ", utsMapOf([["fontSize", 18], ["fontWeight", "bold"], ["overflow", "hidden"], ["textOverflow", "ellipsis"], ["whiteSpace", "nowrap"]])], [".uni-open-location.uni-open-location-dark .uni-open-location-footer ", utsMapOf([["color", "#fafafa"]])]])], ["uni-open-location-address-text", utsMapOf([[".uni-open-location .uni-open-location-footer ", utsMapOf([["fontSize", 16], ["marginTop", 10], ["overflow", "hidden"], ["textOverflow", "ellipsis"], ["whiteSpace", "nowrap"]])], [".uni-open-location.uni-open-location-dark .uni-open-location-footer ", utsMapOf([["color", "#fafafa"]])]])], ["uni-open-location-footer-icon-btns", utsMapOf([[".uni-open-location ", utsMapOf([["width", 100], ["display", "flex"], ["flexDirection", "row"], ["justifyContent", "flex-end"]])]])], ["uni-open-location-footer-icon-btns-item", utsMapOf([[".uni-open-location .uni-open-location-footer-icon-btns ", utsMapOf([["display", "flex"], ["flexDirection", "column"], ["alignItems", "center"], ["opacity:active", 0.6]])]])], ["uni-open-location-footer-icon-box", utsMapOf([[".uni-open-location .uni-open-location-footer-icon-btns .uni-open-location-footer-icon-btns-item ", utsMapOf([["backgroundColor", "#f8f8f8"], ["width", 40], ["height", 40], ["borderRadius", 6], ["display", "flex"], ["justifyContent", "center"], ["alignItems", "center"], ["marginBottom", 6]])], [".uni-open-location.uni-open-location-dark .uni-open-location-footer-icon-btns .uni-open-location-footer-icon-btns-item ", utsMapOf([["backgroundColor", "#393939"]])]])], ["uni-open-location-footer-btn-text", utsMapOf([[".uni-open-location .uni-open-location-footer-icon-btns .uni-open-location-footer-icon-btns-item ", utsMapOf([["fontSize", 12], ["textAlign", "center"]])], [".uni-open-location.uni-open-location-dark .uni-open-location-footer-icon-btns .uni-open-location-footer-icon-btns-item ", utsMapOf([["color", "#909090"]])]])], ["@FONT-FACE", utsMapOf([["0", utsMapOf([["fontFamily", "UniOpenLocationFontFamily"], ["src", "url('data:font/ttf;charset=utf-8;base64,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') format('truetype')"]])]])]])]

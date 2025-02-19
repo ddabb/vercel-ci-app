@@ -1,0 +1,50 @@
+
+  /**
+   * recycle-item 长列表子项组件
+   * @description 用于展示超长列表数据每一项
+   * @property {any[]} item 当前组件渲染的列表项
+   */
+  const __sfc__ = defineComponent({
+    name: "uni-recycle-item",
+    props: {
+      item: {
+        type: Object as PropType<any>,
+        required: true
+      }
+    },
+    inject: {
+      itemHeight: {
+        type: Number as PropType<number>
+      },
+      setCachedSize: {
+        type: Function as PropType<(item : any, size : number) => void>
+      },
+      getCachedSize: {
+        type: Function as PropType<(item : any) => number | null>
+      },
+    },
+    mounted() {
+      if (this.itemHeight == 0) {
+        const cachedSize = this.getCachedSize(this.item)
+        if(cachedSize == null) {
+          uni.createSelectorQuery().in(this).select('.uni-recycle-view-item').boundingClientRect().exec((ret) => {
+            this.setCachedSize(this.item, (ret[0] as NodeInfo).height!)
+          })
+        }
+      }
+    }
+  })
+
+export default __sfc__
+function GenUniModulesUniRecycleViewComponentsUniRecycleItemUniRecycleItemRender(this: InstanceType<typeof __sfc__>): any | null {
+const _ctx = this
+const _cache = this.$.renderCache
+  return createElementVNode("view", utsMapOf({
+    class: "uni-recycle-view-item",
+    style: normalizeStyle(this.itemHeight != 0 ? utsMapOf({height: this.itemHeight + 'px'}) : utsMapOf<string, any | null>({}))
+  }), [
+    renderSlot(_ctx.$slots, "default")
+  ], 4 /* STYLE */)
+}
+export type UniRecycleItemComponentPublicInstance = InstanceType<typeof __sfc__>;
+const GenUniModulesUniRecycleViewComponentsUniRecycleItemUniRecycleItemStyles = [utsMapOf([["uni-recycle-view-item", padStyleMapOf(utsMapOf([["boxSizing", "border-box"], ["overflow", "hidden"]]))]])]

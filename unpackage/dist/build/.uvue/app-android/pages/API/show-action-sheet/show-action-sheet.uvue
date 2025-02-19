@@ -1,0 +1,183 @@
+type ItemType = {
+    value: string;
+    name: string;
+};
+const __sfc__ = defineComponent({
+    data() {
+        return {
+            title: 'action-sheet',
+            itemColorCustom: false,
+            itemContentLarge: false,
+            itemNumLargeSelect: false,
+            showErrorToast: true,
+            items: [{
+                    value: '标题',
+                    name: '有标题'
+                } as ItemType, {
+                    value: '',
+                    name: '无标题'
+                } as ItemType, {
+                    value: '超长标题测试内容，测试超过显示最大范围之后的样式-超长标题测试内容，测试超过显示最大范围之后的样式',
+                    name: '超长标题'
+                } as ItemType] as ItemType[],
+            current: 0,
+        };
+    },
+    onLoad() {
+        uni.showActionSheet({
+            title: "onLoad 调用示例,请手动取消",
+            itemList: ['item1', 'item2'],
+        });
+    },
+    methods: {
+        //自动化测试例专用
+        jest_getWindowInfo(): GetWindowInfoResult {
+            return uni.getWindowInfo();
+        },
+        radioChange(e: UniRadioGroupChangeEvent) {
+            for (let i = 0; i < this.items.length; i++) {
+                if (this.items[i].value === e.detail.value) {
+                    this.current = i;
+                    break;
+                }
+            }
+        },
+        itemContentLargeChange: function (e: UniSwitchChangeEvent) {
+            this.itemContentLarge = e.detail.value;
+        },
+        itemColorChange: function (e: UniSwitchChangeEvent) {
+            this.itemColorCustom = e.detail.value;
+        },
+        itemNumLargeChange: function (e: UniSwitchChangeEvent) {
+            this.itemNumLargeSelect = e.detail.value;
+        },
+        actionSheetTap() {
+            let itemInfo = ['item1', 'item2', 'item3', 'item4'];
+            if (this.itemContentLarge) {
+                itemInfo = ['两个黄鹂鸣翠柳，一行白鹭上青天。窗含西岭千秋雪，门泊东吴万里船', '水光潋滟晴方好,山色空蒙雨亦奇。 欲把西湖比西子,淡妆浓抹总相宜', ''];
+            }
+            if (this.itemNumLargeSelect) {
+                // 大量选项测试,不能超过6个元素 https://uniapp.dcloud.net.cn/api/ui/prompt.html#showactionsheet
+                itemInfo = [];
+                for (var i = 1; i <= 10; i++) {
+                    itemInfo.push('两个黄鹂鸣翠柳，一行白鹭上青天');
+                }
+            }
+            const that = this;
+            if (this.itemColorCustom) {
+                uni.showActionSheet({
+                    title: this.items[this.current].value,
+                    itemList: itemInfo,
+                    itemColor: "#ff00ff",
+                    success: (e) => {
+                        console.log(e.tapIndex);
+                        uni.showToast({
+                            title: "点击了第" + e.tapIndex + "个选项",
+                            icon: "none"
+                        });
+                    },
+                    fail: (e) => {
+                        if (this.showErrorToast) {
+                            uni.showToast({
+                                title: e.errMsg,
+                                icon: "none"
+                            });
+                        }
+                        console.log(e);
+                    }
+                });
+            }
+            else {
+                uni.showActionSheet({
+                    title: this.items[this.current].value,
+                    itemList: itemInfo,
+                    success: (e) => {
+                        console.log(e.tapIndex);
+                        uni.showToast({
+                            title: "点击了第" + e.tapIndex + "个选项",
+                            icon: "none"
+                        });
+                    },
+                    fail: (e) => {
+                        console.log(e);
+                        if (this.showErrorToast) {
+                            uni.showToast({
+                                title: e.errMsg,
+                                icon: "none"
+                            });
+                        }
+                    }
+                });
+            }
+        },
+    }
+});
+export default __sfc__;
+function GenPagesAPIShowActionSheetShowActionSheetRender(this: InstanceType<typeof __sfc__>): any | null {
+    const _ctx = this;
+    const _cache = this.$.renderCache;
+    const _component_page_head = resolveEasyComponent("page-head", _easycom_page_head);
+    const _component_radio = resolveComponent("radio");
+    const _component_radio_group = resolveComponent("radio-group");
+    const _component_switch = resolveComponent("switch");
+    return createElementVNode("scroll-view", utsMapOf({
+        style: normalizeStyle(utsMapOf({ "flex": "1" }))
+    }), [
+        createElementVNode("view", null, [
+            createVNode(_component_page_head, utsMapOf({ title: _ctx.title }), null, 8 /* PROPS */, ["title"]),
+            createElementVNode("view", utsMapOf({ class: "uni-list" }), [
+                createVNode(_component_radio_group, utsMapOf({ onChange: _ctx.radioChange }), utsMapOf({
+                    default: withSlotCtx((): any[] => [
+                        createElementVNode(Fragment, null, RenderHelpers.renderList(_ctx.items, (item, index, __index, _cached): any => {
+                            return createVNode(_component_radio, utsMapOf({
+                                class: normalizeClass(["uni-list-cell uni-list-cell-pd", index < _ctx.items.length - 1 ? 'uni-list-cell-line' : '']),
+                                key: item.value,
+                                value: item.value,
+                                checked: index === _ctx.current
+                            }), utsMapOf({
+                                default: withSlotCtx((): any[] => [toDisplayString(item.name)]),
+                                _: 2 /* DYNAMIC */
+                            }), 1032 /* PROPS, DYNAMIC_SLOTS */, ["class", "value", "checked"]);
+                        }), 128 /* KEYED_FRAGMENT */)
+                    ]),
+                    _: 1 /* STABLE */
+                }), 8 /* PROPS */, ["onChange"])
+            ]),
+            createElementVNode("view", utsMapOf({ class: "uni-list" }), [
+                createElementVNode("view", utsMapOf({ class: "uni-list-cell uni-list-cell-pd" }), [
+                    createElementVNode("view", utsMapOf({ class: "uni-list-cell-db" }), "自定义itemColor"),
+                    createVNode(_component_switch, utsMapOf({
+                        checked: _ctx.itemColorCustom,
+                        onChange: _ctx.itemColorChange
+                    }), null, 8 /* PROPS */, ["checked", "onChange"])
+                ]),
+                createElementVNode("view", utsMapOf({ class: "uni-list-cell uni-list-cell-pd" }), [
+                    createElementVNode("view", utsMapOf({ class: "uni-list-cell-db" }), "超长文本和空文本item"),
+                    createVNode(_component_switch, utsMapOf({
+                        checked: _ctx.itemContentLarge,
+                        onChange: _ctx.itemContentLargeChange
+                    }), null, 8 /* PROPS */, ["checked", "onChange"])
+                ]),
+                createElementVNode("view", utsMapOf({ class: "uni-list-cell uni-list-cell-pd" }), [
+                    createElementVNode("view", utsMapOf({ class: "uni-list-cell-db" }), "超过6个item"),
+                    createVNode(_component_switch, utsMapOf({
+                        checked: _ctx.itemNumLargeSelect,
+                        onChange: _ctx.itemNumLargeChange
+                    }), null, 8 /* PROPS */, ["checked", "onChange"])
+                ])
+            ]),
+            createElementVNode("view", utsMapOf({ class: "uni-padding-wrap" }), [
+                createElementVNode("view", utsMapOf({ class: "uni-btn-v" }), [
+                    createElementVNode("button", utsMapOf({
+                        class: "uni-btn-v",
+                        type: "default",
+                        onClick: _ctx.actionSheetTap,
+                        id: "btn-action-sheet-show"
+                    }), "弹出action sheet", 8 /* PROPS */, ["onClick"])
+                ])
+            ])
+        ])
+    ], 4 /* STYLE */);
+}
+const GenPagesAPIShowActionSheetShowActionSheetStyles = [];
+import _easycom_page_head from '@/components/page-head/page-head.vue';

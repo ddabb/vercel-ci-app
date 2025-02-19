@@ -1,0 +1,53 @@
+const __sfc__ = defineComponent({
+  __name: 'border',
+  setup(__props): any | null {
+const __ins = getCurrentInstance()!;
+const _ctx = __ins.proxy as InstanceType<typeof __sfc__>;
+const _cache = __ins.renderCache;
+
+  const shown = ref(false)
+  setTimeout(() => {
+    shown.value = true
+  }, 1000);
+
+return (): any | null => {
+
+  return createElementVNode("scroll-view", utsMapOf({
+    style: normalizeStyle(utsMapOf({"flex":"1"}))
+  }), [
+    createElementVNode("view", utsMapOf({
+      style: normalizeStyle(utsMapOf({"flex-grow":"1"}))
+    }), [
+      createElementVNode("view", null, [
+        createElementVNode("text", null, "border: 5px dotted blue"),
+        createElementVNode("view", utsMapOf({
+          class: "common",
+          style: normalizeStyle(utsMapOf({"border":"5px dotted blue"}))
+        }), null, 4 /* STYLE */)
+      ]),
+      createElementVNode("view", null, [
+        createElementVNode("text", null, "border与background-image同时设置"),
+        createElementVNode("view", utsMapOf({
+          class: "common",
+          style: normalizeStyle(utsMapOf({"border-style":"solid","border-color":"rgba(0, 0, 255, 0.1)","background-image":"linear-gradient(to right, #00ff00, #00bc79)"}))
+        }), null, 4 /* STYLE */)
+      ]),
+      createElementVNode("view", null, [
+        createElementVNode("text", null, "设置border的view，通过v-show控制显示"),
+        withDirectives(createElementVNode("view", null, [
+          createElementVNode("view", utsMapOf({
+            class: "common",
+            style: normalizeStyle(utsMapOf({"border":"5px dotted blue"}))
+          }), null, 4 /* STYLE */)
+        ], 512 /* NEED_PATCH */), [
+          [vShow, unref(shown)]
+        ])
+      ])
+    ], 4 /* STYLE */)
+  ], 4 /* STYLE */)
+}
+}
+
+})
+export default __sfc__
+const GenPagesCSSBorderBorderStyles = [utsMapOf([["common", padStyleMapOf(utsMapOf([["width", 250], ["height", 250], ["backgroundColor", "#808080"]]))]])]

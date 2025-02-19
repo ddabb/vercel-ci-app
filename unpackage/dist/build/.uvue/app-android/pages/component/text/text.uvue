@@ -1,0 +1,84 @@
+const __sfc__ = defineComponent({
+    data() {
+        return {
+            title: 'text',
+            texts: [
+                'HBuilderX，轻巧、极速，极客编辑器',
+                'uni-app x，终极跨平台方案',
+                'uniCloud，js serverless云服务',
+                'uts，大一统语言',
+                'uniMPSdk，让你的App具备小程序能力',
+                'uni-admin，开源、现成的全端管理后台',
+                'uni-id，开源、全端的账户中心',
+                'uni-pay，开源、云端一体、全平台的支付',
+                'uni-ai，聚合ai能力',
+                'uni-cms，开源、云端一体、全平台的内容管理平台',
+                'uni-im，开源、云端一体、全平台的im即时消息',
+                'uni统计，开源、完善、全平台的统计报表',
+                '......'
+            ] as string[],
+            text: '',
+            canAdd: true,
+            canRemove: false,
+            extraLine: [] as string[]
+        };
+    },
+    methods: {
+        add: function () {
+            this.extraLine.push(this.texts[this.extraLine.length % 12]);
+            this.text = this.extraLine.join('\n');
+            this.canAdd = this.extraLine.length < 12;
+            this.canRemove = this.extraLine.length > 0;
+        },
+        remove: function () {
+            if (this.extraLine.length > 0) {
+                this.extraLine.pop();
+                this.text = this.extraLine.join('\n');
+                this.canAdd = this.extraLine.length < 12;
+                this.canRemove = this.extraLine.length > 0;
+            }
+        },
+        textProps: function () {
+            uni.navigateTo({
+                url: '/pages/component/text/text-props'
+            });
+        }
+    }
+});
+export default __sfc__;
+function GenPagesComponentTextTextRender(this: InstanceType<typeof __sfc__>): any | null {
+    const _ctx = this;
+    const _cache = this.$.renderCache;
+    const _component_page_head = resolveEasyComponent("page-head", _easycom_page_head);
+    return createElementVNode("scroll-view", utsMapOf({
+        style: normalizeStyle(utsMapOf({ "flex": "1" }))
+    }), [
+        createVNode(_component_page_head, utsMapOf({ title: _ctx.title }), null, 8 /* PROPS */, ["title"]),
+        createElementVNode("view", utsMapOf({ class: "uni-padding-wrap uni-common-mt" }), [
+            createElementVNode("view", utsMapOf({ class: "text-box" }), [
+                createElementVNode("text", utsMapOf({ class: "text" }), toDisplayString(_ctx.text), 1 /* TEXT */)
+            ]),
+            createElementVNode("view", utsMapOf({ class: "uni-btn-v" }), [
+                createElementVNode("button", utsMapOf({
+                    class: "uni-btn",
+                    type: "primary",
+                    disabled: !_ctx.canAdd,
+                    onClick: _ctx.add
+                }), " add line ", 8 /* PROPS */, ["disabled", "onClick"]),
+                createElementVNode("button", utsMapOf({
+                    class: "uni-btn",
+                    type: "warn",
+                    disabled: !_ctx.canRemove,
+                    onClick: _ctx.remove
+                }), " remove line ", 8 /* PROPS */, ["disabled", "onClick"]),
+                createElementVNode("button", utsMapOf({
+                    class: "uni-btn",
+                    type: "primary",
+                    onClick: _ctx.textProps
+                }), " 更多属性示例 ", 8 /* PROPS */, ["onClick"])
+            ])
+        ])
+    ], 4 /* STYLE */);
+}
+const GenPagesComponentTextTextStyles = [utsMapOf([["text-box", padStyleMapOf(utsMapOf([["marginBottom", 20], ["paddingTop", 20], ["paddingRight", 0], ["paddingBottom", 20], ["paddingLeft", 0], ["display", "flex"], ["minHeight", 150], ["backgroundColor", "#ffffff"], ["justifyContent", "center"], ["alignItems", "center"]]))], ["text", padStyleMapOf(utsMapOf([["fontSize", 15], ["color", "#353535"], ["lineHeight", "27px"], ["textAlign", "center"]]))]])];
+import _easycom_page_head from '@/components/page-head/page-head.vue';
