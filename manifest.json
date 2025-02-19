@@ -1,9 +1,9 @@
 {
-    "name" : "vercel-ci-app",
+    "name" : "知识分享笔记",
     "appid" : "__UNI__FB90797",
-    "description" : "",
-    "versionName" : "1.7.2",
-    "versionCode" : 10702,
+    "description" : "一个基于Vecel仿Hexo搭建的博客网站",
+    "versionName" : "1.7.3",
+    "versionCode" : 10703,
     "uni-app-x" : {},
     "uniStatistics" : {
         "enable" : false
